@@ -94,7 +94,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <div className="text-[11px] font-semibold uppercase tracking-widest text-[#3B82F6]">
             Control Center
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-[#DFDFDE] uppercase">Admin Dashboard</h1>
+          <h1 className="text-xl font-bold uppercase tracking-tight text-[#DFDFDE]">
+            Admin Dashboard
+          </h1>
           <p className="mt-0.5 text-xs text-zinc-400">
             SEDS Sri Lanka Certificate Management Platform
           </p>
@@ -106,7 +108,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             <select
               value={selectedEventId}
               onChange={handleEventChange}
-              className="apple-input bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white uppercase tracking-wider border border-zinc-800"
+              className="apple-input border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white"
             >
               {events.map((ev) => (
                 <option key={ev.id} value={ev.id}>
@@ -144,7 +146,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         <button
           type="button"
           onClick={() => setActiveTab('stats')}
-          className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 ${
+          className={`border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${
             activeTab === 'stats'
               ? 'border-[#3B82F6] bg-zinc-900/80 text-[#3B82F6]'
               : 'border-transparent text-zinc-400 hover:text-white'
@@ -156,20 +158,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         <button
           type="button"
           onClick={() => setActiveTab('participants')}
-          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 ${
+          className={`flex items-center gap-1.5 border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${
             activeTab === 'participants'
               ? 'border-[#3B82F6] bg-zinc-900/80 text-[#3B82F6]'
               : 'border-transparent text-zinc-400 hover:text-white'
           }`}
         >
           <span>Participants</span>
-          <span className="font-mono text-[10px] bg-zinc-800 px-1.5 py-0.5 text-zinc-300">{stats.totalParticipants}</span>
+          <span className="bg-zinc-800 px-1.5 py-0.5 font-mono text-[10px] text-zinc-300">
+            {stats.totalParticipants}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('settings')}
-          className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 ${
+          className={`border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${
             activeTab === 'settings'
               ? 'border-[#3B82F6] bg-zinc-900/80 text-[#3B82F6]'
               : 'border-transparent text-zinc-400 hover:text-white'
@@ -181,14 +185,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         <button
           type="button"
           onClick={() => setActiveTab('audit')}
-          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 ${
+          className={`flex items-center gap-1.5 border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${
             activeTab === 'audit'
               ? 'border-[#3B82F6] bg-zinc-900/80 text-[#3B82F6]'
               : 'border-transparent text-zinc-400 hover:text-white'
           }`}
         >
           <span>Audit Log</span>
-          <span className="font-mono text-[10px] bg-zinc-800 px-1.5 py-0.5 text-zinc-300">{stats.claimedCertificates}</span>
+          <span className="bg-zinc-800 px-1.5 py-0.5 font-mono text-[10px] text-zinc-300">
+            {stats.claimedCertificates}
+          </span>
         </button>
       </div>
 

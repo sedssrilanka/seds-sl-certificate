@@ -215,8 +215,7 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
   return (
     <div className="space-y-4">
       {/* Search & Actions Bar */}
-      <div className="bleed-cross bg-[#09090b] space-y-3 p-4">
-
+      <div className="bleed-cross space-y-3 bg-[#09090b] p-4">
         <div className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
@@ -270,7 +269,7 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
               className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${
                 filter === key
                   ? 'bg-[#3B82F6] text-white'
-                  : 'text-zinc-400 hover:text-zinc-200 bg-zinc-900 border border-zinc-800'
+                  : 'border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200'
               }`}
             >
               {key}
@@ -336,9 +335,9 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
       {/* CSV Preview Modal */}
       {previewRows && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="bleed-cross bg-[#09090b] flex max-h-[80vh] w-full max-w-2xl flex-col space-y-4 p-6 shadow-2xl">
+          <div className="bleed-cross flex max-h-[80vh] w-full max-w-2xl flex-col space-y-4 bg-[#09090b] p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
                 Confirm CSV Import ({previewRows.length} participants)
               </h3>
               <button
@@ -352,7 +351,7 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
 
             <div className="flex-1 overflow-auto border border-zinc-800 bg-zinc-950/60">
               <table className="w-full text-left text-xs text-zinc-300">
-                <thead className="sticky top-0 bg-zinc-900 font-semibold uppercase text-zinc-400 tracking-wider text-[10px]">
+                <thead className="sticky top-0 bg-zinc-900 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
                   <tr>
                     <th className="p-2.5">Name</th>
                     <th className="p-2.5">Email</th>
@@ -399,7 +398,7 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
       )}
 
       {/* Table */}
-      <div className="bleed-cross bg-[#09090b] overflow-hidden">
+      <div className="bleed-cross overflow-hidden bg-[#09090b]">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-zinc-300 sm:text-sm">
             <thead className="border-b border-zinc-800 bg-zinc-900/90 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
@@ -416,7 +415,7 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
                 <tr>
                   <td colSpan={5} className="py-10 text-center text-zinc-500">
                     <Loader2 className="mx-auto mb-1.5 h-5 w-5 animate-spin text-[#3B82F6]" />
-                    <span className="uppercase tracking-wider text-xs">Loading...</span>
+                    <span className="text-xs uppercase tracking-wider">Loading...</span>
                   </td>
                 </tr>
               ) : participants.length === 0 ? (
@@ -467,12 +466,14 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
                           <span className="inline-block bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
                             Claimed
                           </span>
-                          <div className="mt-0.5 text-[10px] text-zinc-500 font-mono">
+                          <div className="mt-0.5 font-mono text-[10px] text-zinc-500">
                             {formatDateTime(p.claimed_at)}
                           </div>
                         </div>
                       ) : (
-                        <span className="text-zinc-500 uppercase tracking-wider text-[11px]">Unclaimed</span>
+                        <span className="text-[11px] uppercase tracking-wider text-zinc-500">
+                          Unclaimed
+                        </span>
                       )}
                     </td>
 
@@ -497,10 +498,11 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
       {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="bleed-cross bg-[#09090b] w-full max-w-sm space-y-4 p-6 shadow-2xl">
-
+          <div className="bleed-cross w-full max-w-sm space-y-4 bg-[#09090b] p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">Add Participant</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
+                Add Participant
+              </h3>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
@@ -518,7 +520,9 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
 
             <form onSubmit={handleAddParticipant} className="space-y-3">
               <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-300 uppercase tracking-wider">Full Name</label>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-300">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   required
@@ -529,7 +533,9 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-300 uppercase tracking-wider">Email</label>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-300">
+                  Email
+                </label>
                 <input
                   type="email"
                   required
@@ -540,7 +546,9 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-300 uppercase tracking-wider">Registration ID</label>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-300">
+                  Registration ID
+                </label>
                 <input
                   type="text"
                   value={newRegId}
@@ -550,7 +558,9 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
               </div>
 
               <div className="flex items-center justify-between border border-zinc-800 bg-zinc-950/60 p-3">
-                <span className="text-xs text-zinc-300 uppercase tracking-wider">Eligible for Certificate</span>
+                <span className="text-xs uppercase tracking-wider text-zinc-300">
+                  Eligible for Certificate
+                </span>
                 <input
                   type="checkbox"
                   checked={newEligible}

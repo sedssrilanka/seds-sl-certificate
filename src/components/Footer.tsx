@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
             href={getOrgUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-zinc-300 font-medium text-zinc-400"
+            className="font-medium text-zinc-400 transition-colors hover:text-zinc-300"
           >
             {getOrgDomain()}
           </a>
@@ -22,4 +22,3 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
-

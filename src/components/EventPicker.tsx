@@ -32,10 +32,10 @@ export const EventPicker: React.FC = () => {
   return (
     <div className="mx-auto w-full max-w-xl px-4 py-12 sm:py-16">
       <div className="mb-8 text-center">
-        <div className="text-[11px] font-semibold uppercase tracking-widest text-[#3B82F6] mb-1">
+        <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-[#3B82F6]">
           SEDS Sri Lanka
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#DFDFDE] sm:text-3xl uppercase">
+        <h1 className="text-2xl font-bold uppercase tracking-tight text-[#DFDFDE] sm:text-3xl">
           Certificate Portal
         </h1>
         <p className="mt-2 text-xs text-zinc-400">
@@ -58,8 +58,7 @@ export const EventPicker: React.FC = () => {
       </div>
 
       {/* Events List */}
-      <div className="bleed-cross bg-[#09090b] p-3 space-y-2">
-
+      <div className="bleed-cross space-y-2 bg-[#09090b] p-3">
         {loading ? (
           <div className="py-12 text-center text-zinc-500">
             <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin text-[#3B82F6]" />
@@ -77,7 +76,7 @@ export const EventPicker: React.FC = () => {
               className="group flex items-center justify-between border border-zinc-850 bg-zinc-950/70 p-4 transition-all hover:border-[#3B82F6]/50 hover:bg-zinc-900/60"
             >
               <div>
-                <div className="text-sm font-semibold text-[#DFDFDE] group-hover:text-white uppercase tracking-wide">
+                <div className="text-sm font-semibold uppercase tracking-wide text-[#DFDFDE] group-hover:text-white">
                   {event.name}
                 </div>
                 {event.description && (

@@ -53,16 +53,18 @@ export function formatSLST(isoString: string | Date | null | undefined): string 
   if (!isoString) return 'N/A';
   try {
     const date = typeof isoString === 'string' ? new Date(isoString) : isoString;
-    return new Intl.DateTimeFormat('en-US', {
-      timeZone: SL_TIMEZONE,
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true,
-    }).format(date) + ' (SLST / +05:30)';
+    return (
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: SL_TIMEZONE,
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      }).format(date) + ' (SLST / +05:30)'
+    );
   } catch {
     return String(isoString);
   }
@@ -102,15 +104,16 @@ export function formatDualTimezone(isoString: string | Date | null | undefined):
   }
   try {
     const date = typeof isoString === 'string' ? new Date(isoString) : isoString;
-    const slst = new Intl.DateTimeFormat('en-US', {
-      timeZone: SL_TIMEZONE,
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    }).format(date) + ' SLST (+05:30)';
+    const slst =
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: SL_TIMEZONE,
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      }).format(date) + ' SLST (+05:30)';
 
     const local = new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
@@ -157,7 +160,12 @@ export function slstInputValueToIso(inputValue: string | null | undefined): stri
   try {
     const trimmed = inputValue.trim();
     // If it's in format "YYYY-MM-DDTHH:mm", attach +05:30 suffix
-    const withSuffix = trimmed.length === 16 ? `${trimmed}:00+05:30` : trimmed.includes('+') ? trimmed : `${trimmed}+05:30`;
+    const withSuffix =
+      trimmed.length === 16
+        ? `${trimmed}:00+05:30`
+        : trimmed.includes('+')
+          ? trimmed
+          : `${trimmed}+05:30`;
     const date = new Date(withSuffix);
     if (isNaN(date.getTime())) return null;
     return date.toISOString();
@@ -213,7 +221,14 @@ export function calculateSLSTTarget(target: 'midnight' | 'noon' | 'end_of_week')
   }
 
   // Create UTC representation of SLST target, then subtract offset to get true UTC
-  const targetSlstTime = Date.UTC(slstYear, slstMonth, targetDate, targetHour, targetMinute, targetSecond);
+  const targetSlstTime = Date.UTC(
+    slstYear,
+    slstMonth,
+    targetDate,
+    targetHour,
+    targetMinute,
+    targetSecond
+  );
   return new Date(targetSlstTime - slstOffsetMs);
 }
 
@@ -268,4 +283,3 @@ export function getOrgDomain(): string {
   const url = getOrgUrl();
   return url.replace(/^https?:\/\//, '').replace(/\/+$/, '');
 }
-

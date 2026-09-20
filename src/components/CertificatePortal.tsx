@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Download, CheckCircle2, AlertCircle, Loader2, ArrowLeft, RefreshCw } from 'lucide-react';
+import {
+  Download,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  ArrowLeft,
+  RefreshCw,
+  Mail,
+  Copy,
+  Check,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { verifyCertificate, getPublicEvent } from '../lib/supabase';
 import { Event, VerificationResponse } from '../types';
@@ -26,6 +36,7 @@ export const CertificatePortal: React.FC = () => {
   // Result State
   const [result, setResult] = useState<VerificationResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copiedTemplate, setCopiedTemplate] = useState<boolean>(false);
 
   // Fetch Event by slug/query
   useEffect(() => {
@@ -196,8 +207,7 @@ export const CertificatePortal: React.FC = () => {
       </div>
 
       {/* Main Card */}
-      <div className="bleed-cross bg-[#09090b] space-y-6 p-6 sm:p-8">
-
+      <div className="bleed-cross space-y-6 bg-[#09090b] p-6 sm:p-8">
         {/* Header */}
         <div className="space-y-1.5 text-center sm:text-left">
           <div className="text-[11px] font-semibold uppercase tracking-widest text-[#3B82F6]">
@@ -214,15 +224,19 @@ export const CertificatePortal: React.FC = () => {
           <div className="space-y-5 pt-2">
             <div className="space-y-3 border border-zinc-800 bg-zinc-950/80 p-5 shadow-inner">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm uppercase tracking-wide">
+                <span className="inline-flex items-center gap-1.5 bg-emerald-600 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   <span>Certificate Verified</span>
                 </span>
               </div>
 
               <div className="space-y-0.5 pt-1">
-                <div className="text-xs text-zinc-400 uppercase tracking-wider">Participant Name</div>
-                <div className="text-lg font-bold text-white tracking-wide">{result.participant_name}</div>
+                <div className="text-xs uppercase tracking-wider text-zinc-400">
+                  Participant Name
+                </div>
+                <div className="text-lg font-bold tracking-wide text-white">
+                  {result.participant_name}
+                </div>
                 {result.registration_id && (
                   <div className="font-mono text-xs text-zinc-400">
                     Registration ID: {result.registration_id}
@@ -259,7 +273,8 @@ export const CertificatePortal: React.FC = () => {
                 </button>
               ) : (
                 <div className="border border-amber-600/30 bg-amber-950/20 p-3 text-center text-xs text-amber-200">
-                  Certificate PDF file is being prepared by the event organizers. Please check back shortly.
+                  Certificate PDF file is being prepared by the event organizers. Please check back
+                  shortly.
                 </div>
               )}
 
@@ -273,7 +288,7 @@ export const CertificatePortal: React.FC = () => {
               </button>
             </div>
 
-            <div className="text-center text-[11px] text-zinc-500 font-mono">
+            <div className="text-center font-mono text-[11px] text-zinc-500">
               Download link is valid for 5 minutes.
             </div>
           </div>
@@ -295,7 +310,7 @@ export const CertificatePortal: React.FC = () => {
             <div>
               <label
                 htmlFor="participant-email"
-                className="mb-1.5 block text-xs font-medium text-zinc-300 uppercase tracking-wider"
+                className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-300"
               >
                 Registered Email
               </label>
@@ -316,7 +331,7 @@ export const CertificatePortal: React.FC = () => {
             <div>
               <label
                 htmlFor="certificate-code"
-                className="mb-1.5 block text-xs font-medium text-zinc-300 uppercase tracking-wider"
+                className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-300"
               >
                 Certificate Code
               </label>
@@ -356,8 +371,131 @@ export const CertificatePortal: React.FC = () => {
         )}
       </div>
 
+      {/* Disclaimer & Correction Guidelines */}
+      {(() => {
+        const subjectText = `[${event.name}] Certificate Correction Request`;
+        const bodyLines = [
+          `Event Name: ${event.name}`,
+          `Registered Email: ${email || 'your-email@example.com'}`,
+          `Current Name on Certificate: ${result?.participant_name || 'Name as currently shown'}`,
+          `Corrected Full Name: [Enter exact name needed]`,
+          `Registration ID: ${result?.registration_id || 'N/A'}`,
+          `Additional Notes: `,
+        ];
+        const bodyText = bodyLines.join('\r\n');
+        const mailtoUrl = `mailto:info@sedssl.org?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=info@sedssl.org&su=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+
+        const copyEmailTemplate = () => {
+          const fullCopy = `To: info@sedssl.org\nSubject: ${subjectText}\n\n${bodyLines.join('\n')}`;
+          navigator.clipboard
+            .writeText(fullCopy)
+            .then(() => {
+              setCopiedTemplate(true);
+              toast.success('Email correction template copied to clipboard!');
+              setTimeout(() => setCopiedTemplate(false), 2500);
+            })
+            .catch(() => {
+              toast.error('Failed to copy to clipboard. Please copy manually.');
+            });
+        };
+
+        return (
+          <div className="bleed-cross mt-6 space-y-3.5 border border-zinc-800/80 bg-[#09090b] p-5 sm:p-6">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#3B82F6]">
+                Notice & Certificate Corrections
+              </span>
+            </div>
+
+            <p className="text-xs leading-relaxed text-zinc-300">
+              Certificates are <strong>automatically generated</strong> based on the details
+              provided during event registration. If you notice any misspelled names, typographical
+              errors, or incorrect details, please contact us at{' '}
+              <a href={mailtoUrl} className="font-medium text-[#3B82F6] hover:underline">
+                info@sedssl.org
+              </a>
+              . Our team will verify and issue your corrected certificate.
+            </p>
+
+            {/* Email Template Preview Box */}
+            <div className="space-y-2 border border-zinc-800 bg-zinc-950/70 p-3.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+                  Required Email Format:
+                </span>
+                <button
+                  type="button"
+                  onClick={copyEmailTemplate}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[#3B82F6] transition-colors hover:text-blue-400"
+                >
+                  {copiedTemplate ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-400" />
+                      <span className="text-emerald-400">Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      <span>Copy Template</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="space-y-1 font-mono text-[11px] text-zinc-400">
+                <div>
+                  <strong className="text-zinc-300">To:</strong> info@sedssl.org
+                </div>
+                <div>
+                  <strong className="text-zinc-300">Subject:</strong> {subjectText}
+                </div>
+                <div className="pt-1 text-zinc-500">
+                  ----------------------------------------
+                  <br />• <strong>Registered Email:</strong> {email || 'your-email@example.com'}
+                  <br />• <strong>Current Name on Certificate:</strong>{' '}
+                  {result?.participant_name || 'Name as shown'}
+                  <br />• <strong>Corrected Full Name:</strong> [Enter exact name needed]
+                  <br />• <strong>Registration ID (if any):</strong>{' '}
+                  {result?.registration_id || 'SEDS-XXXXX'}
+                  <br />
+                  ----------------------------------------
+                </div>
+              </div>
+            </div>
+
+            {/* Direct Email Actions */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <a
+                href={mailtoUrl}
+                className="btn-primary-sharp inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-white"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                <span>Open in Email App</span>
+              </a>
+
+              <a
+                href={gmailUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary-sharp inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-[#DFDFDE] hover:text-white"
+              >
+                <span>Open in Web Gmail</span>
+              </a>
+
+              <Link
+                to="/support"
+                className="btn-secondary-sharp inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-[#DFDFDE] hover:text-white"
+              >
+                <span>Support Guide</span>
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* System info */}
-      <div className="mt-6 text-center text-xs text-zinc-500 font-mono">
+      <div className="mt-6 text-center font-mono text-xs text-zinc-500">
         SEDS Sri Lanka Certificate Distribution System
       </div>
     </div>

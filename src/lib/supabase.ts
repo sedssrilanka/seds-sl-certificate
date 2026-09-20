@@ -211,7 +211,6 @@ export async function getPublicEvent(slug: string): Promise<Event | null> {
   );
 }
 
-
 export async function verifyCertificate(
   eventSlug: string,
   email: string,

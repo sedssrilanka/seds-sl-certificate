@@ -58,15 +58,16 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className="mx-auto w-full max-w-sm px-4 py-16">
-      <div className="bleed-cross bg-[#09090b] space-y-6 p-6 sm:p-8">
-
+      <div className="bleed-cross space-y-6 bg-[#09090b] p-6 sm:p-8">
         <div className="space-y-2 text-center">
           <img
             src="/sedsl-l-icon.png"
             alt="SEDS Sri Lanka"
             className="mx-auto h-12 w-auto object-contain"
           />
-          <h1 className="text-xl font-semibold tracking-tight text-[#DFDFDE] uppercase">Admin Sign In</h1>
+          <h1 className="text-xl font-semibold uppercase tracking-tight text-[#DFDFDE]">
+            Admin Sign In
+          </h1>
           <p className="text-xs text-zinc-400">SEDS Certificate Management Portal</p>
         </div>
 

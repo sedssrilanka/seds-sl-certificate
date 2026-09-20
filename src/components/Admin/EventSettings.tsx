@@ -43,9 +43,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
   const [newCode, setNewCode] = useState('');
   const [codeHashPreview, setCodeHashPreview] = useState('');
   const [enabled, setEnabled] = useState(event?.certificate_enabled ?? true);
-  const [expiresAt, setExpiresAt] = useState(
-    isoToSLSTInputValue(event?.code_expires_at)
-  );
+  const [expiresAt, setExpiresAt] = useState(isoToSLSTInputValue(event?.code_expires_at));
 
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -85,7 +83,10 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
   const generateCodeWithStyle = (style: 'seds' | 'event' | 'pin' | 'word') => {
     let generated = '';
     const cleanSlug =
-      (slug || 'EVENT').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4) || 'SEDS';
+      (slug || 'EVENT')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toUpperCase()
+        .slice(0, 4) || 'SEDS';
     const randomHex = Math.random().toString(36).substring(2, 6).toUpperCase();
 
     if (style === 'seds') {
@@ -129,7 +130,6 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
     navigator.clipboard.writeText(url);
     toast.success(`Portal URL copied: ${url}`);
   };
-
 
   // Expiration presets (from Now in Sri Lanka Time)
   const handleSetPresetExpiration = (minutesToAdd: number | null) => {
@@ -293,17 +293,12 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
     }
 
     const diffMins = Math.round(diffMs / 60000);
-    let timeText = '';
-    if (diffMins < 60) {
-      timeText = `${diffMins} min${diffMins === 1 ? '' : 's'}`;
-    } else if (diffMins < 1440) {
-      const diffHours = Math.floor(diffMins / 60);
-      const remainMins = diffMins % 60;
-      timeText = `${diffHours}h ${remainMins}m`;
-    } else {
-      const diffDays = Math.round(diffMins / 1440);
-      timeText = `~${diffDays} day${diffDays === 1 ? '' : 's'}`;
-    }
+    const timeText =
+      diffMins < 60
+        ? `${diffMins} min${diffMins === 1 ? '' : 's'}`
+        : diffMins < 1440
+          ? `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`
+          : `~${Math.round(diffMins / 1440)} day${Math.round(diffMins / 1440) === 1 ? '' : 's'}`;
 
     return {
       label: `Active · Expires in ${timeText}`,
@@ -314,7 +309,6 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
   };
 
   const expStatus = getExpirationStatus();
-
 
   return (
     <div className="space-y-6">
@@ -331,7 +325,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
           <button
             type="button"
             onClick={handleCopyPortalLink}
-            className="rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white flex items-center gap-1.5"
+            className="flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
           >
             <Copy className="h-3.5 w-3.5" />
             <span>Copy Link</span>
@@ -341,7 +335,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
             href={`/${slug}`}
             target="_blank"
             rel="noreferrer"
-            className="btn-secondary-sharp px-3 py-1.5 text-xs uppercase tracking-wider flex items-center gap-1.5"
+            className="btn-secondary-sharp flex items-center gap-1.5 px-3 py-1.5 text-xs uppercase tracking-wider"
           >
             <ExternalLink className="h-3.5 w-3.5 text-[#3B82F6]" />
             <span>Open Portal</span>
@@ -350,7 +344,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
           <button
             type="button"
             onClick={() => setShowNewEventModal(true)}
-            className="btn-primary-sharp px-3 py-1.5 text-xs uppercase tracking-wider flex items-center gap-1.5"
+            className="btn-primary-sharp flex items-center gap-1.5 px-3 py-1.5 text-xs uppercase tracking-wider"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>New Event</span>
@@ -359,7 +353,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
       </div>
 
       {saveSuccess && (
-        <div className="flex items-center gap-2 bg-emerald-600 p-3 text-xs font-semibold text-white shadow-sm uppercase tracking-wide">
+        <div className="flex items-center gap-2 bg-emerald-600 p-3 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-white" />
           <span>All settings saved and published successfully.</span>
         </div>
@@ -374,10 +368,12 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* MODULE 1: Event Identity & URL Routing */}
-        <div className="bleed-cross bg-[#09090b] space-y-4 p-6">
+        <div className="bleed-cross space-y-4 bg-[#09090b] p-6">
           <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
             <Globe className="h-4 w-4 text-[#3B82F6]" />
-            <h3 className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">1. Event Identity & Public URL</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
+              1. Event Identity & Public URL
+            </h3>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -396,8 +392,8 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
               <label className="mb-1.5 block text-xs font-medium text-zinc-300">
                 URL Slug Path
               </label>
-              <div className="flex overflow-hidden border border-zinc-800 focus-within:border-zinc-500 focus-within:ring-1 focus-within:ring-zinc-500 bg-zinc-950/60">
-                <span className="flex items-center bg-zinc-900/90 px-3 py-2.5 font-mono text-xs text-zinc-500 border-r border-zinc-800 select-none">
+              <div className="flex overflow-hidden border border-zinc-800 bg-zinc-950/60 focus-within:border-zinc-500 focus-within:ring-1 focus-within:ring-zinc-500">
+                <span className="flex select-none items-center border-r border-zinc-800 bg-zinc-900/90 px-3 py-2.5 font-mono text-xs text-zinc-500">
                   {getAppBaseDomain()}/
                 </span>
                 <input
@@ -426,11 +422,13 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
         </div>
 
         {/* MODULE 2: Livestream Secret Code */}
-        <div className="bleed-cross bg-[#09090b] space-y-4 p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800 pb-3">
+        <div className="bleed-cross space-y-4 bg-[#09090b] p-6">
+          <div className="flex flex-col justify-between gap-2 border-b border-zinc-800 pb-3 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
               <Key className="h-4 w-4 text-[#3B82F6]" />
-              <h3 className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">2. Livestream Verification Code</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
+                2. Livestream Verification Code
+              </h3>
             </div>
 
             {/* Generator Quick Action Chips */}
@@ -469,7 +467,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-300 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-300">
                 New Certificate Code (Leave blank to keep existing)
               </label>
               <div className="relative">
@@ -494,7 +492,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-400 uppercase tracking-wider">
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-400">
                 SHA-256 Storage Hash (One-Way Verification)
               </label>
               <div className="apple-input w-full truncate bg-zinc-950/60 px-3.5 py-2.5 font-mono text-xs text-zinc-500">
@@ -508,18 +506,17 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
         </div>
 
         {/* MODULE 3: Expiration Timer Controls */}
-        <div className="bleed-cross bg-[#09090b] space-y-5 p-6">
-
+        <div className="bleed-cross space-y-5 bg-[#09090b] p-6">
           {/* Header with Solid Status Badge & Timezone details */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800 pb-4">
+          <div className="flex flex-col justify-between gap-3 border-b border-zinc-800 pb-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-[#3B82F6]" />
               <div>
-                <h3 className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
                   3. Validity Window & Expiration Timer
                 </h3>
-                <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                  <span className="text-[11px] text-[#3B82F6] font-mono">
+                <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-[11px] text-[#3B82F6]">
                     Timezone: Asia/Colombo (SLST · UTC+05:30)
                   </span>
                   {expStatus.timezones && !expStatus.timezones.isSameTimezone && (
@@ -537,7 +534,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
             <div className="flex flex-col items-start sm:items-end">
               {/* Solid Badges */}
               <div
-                className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 font-semibold uppercase tracking-wide shadow-sm ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm ${
                   expStatus.state === 'active'
                     ? 'bg-emerald-600 text-white'
                     : expStatus.state === 'expired'
@@ -548,17 +545,17 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
                 <Hourglass className="h-3 w-3 shrink-0" />
                 <span>{expStatus.label}</span>
               </div>
-              <span className="text-[11px] text-zinc-400 mt-1 font-mono">{expStatus.detail}</span>
+              <span className="mt-1 font-mono text-[11px] text-zinc-400">{expStatus.detail}</span>
             </div>
           </div>
 
           {/* Row 1: Rapid Livestream Durations */}
           <div className="space-y-2">
-            <label className="text-xs text-zinc-300 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-300">
               <Timer className="h-3.5 w-3.5 text-[#3B82F6]" />
               <span>Livestream Duration (1-Click Set from Now)</span>
             </label>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               <button
                 type="button"
                 onClick={() => handleSetPresetExpiration(5)}
@@ -606,11 +603,11 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
 
           {/* Row 2: Extended Window & Target Dates */}
           <div className="space-y-2">
-            <label className="text-xs text-zinc-300 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-300">
               <Calendar className="h-3.5 w-3.5 text-[#3B82F6]" />
               <span>Extended Window & Target Milestones</span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
               <button
                 type="button"
                 onClick={() => handleSetPresetExpiration(1440)}
@@ -650,9 +647,9 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
           </div>
 
           {/* Row 3: Live Grace Extensions */}
-          <div className="border border-zinc-800 bg-zinc-950/70 p-4 space-y-2">
+          <div className="space-y-2 border border-zinc-800 bg-zinc-950/70 p-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-200 flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-200">
                 <RefreshCw className="h-3.5 w-3.5 text-[#3B82F6]" />
                 <span>Live Grace Extension (Adds to current countdown)</span>
               </span>
@@ -690,9 +687,9 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
           </div>
 
           {/* Row 4: Custom Date Picker */}
-          <div className="pt-2 border-t border-zinc-800">
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs text-zinc-300 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+          <div className="border-t border-zinc-800 pt-2">
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-300">
                 <Calendar className="h-3.5 w-3.5 text-[#3B82F6]" />
                 <span>Custom Expiration Date & Time (Sri Lanka Time · UTC+05:30)</span>
               </label>
@@ -700,7 +697,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
                 <button
                   type="button"
                   onClick={() => setExpiresAt('')}
-                  className="text-[11px] text-[#3B82F6] hover:text-white uppercase tracking-wider underline font-mono"
+                  className="font-mono text-[11px] uppercase tracking-wider text-[#3B82F6] underline hover:text-white"
                 >
                   Clear Date
                 </button>
@@ -710,17 +707,19 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
               type="datetime-local"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className="apple-input w-full px-3.5 py-2.5 text-xs text-zinc-200 font-mono"
+              className="apple-input w-full px-3.5 py-2.5 font-mono text-xs text-zinc-200"
             />
           </div>
         </div>
 
         {/* MODULE 4: Master Claiming Access Toggle */}
-        <div className="bleed-cross bg-[#09090b] flex items-center justify-between p-5">
+        <div className="bleed-cross flex items-center justify-between bg-[#09090b] p-5">
           <div className="flex items-center gap-3">
-            <Sliders className="h-4 w-4 text-[#3B82F6] shrink-0" />
+            <Sliders className="h-4 w-4 shrink-0 text-[#3B82F6]" />
             <div>
-              <div className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">4. Certificate Claiming Status</div>
+              <div className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
+                4. Certificate Claiming Status
+              </div>
               <div className="text-xs text-zinc-400">
                 {enabled
                   ? 'Portal is currently OPEN for eligible participants.'
@@ -731,7 +730,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
           <button
             type="button"
             onClick={() => setEnabled(!enabled)}
-            className={`relative inline-flex h-6 w-12 items-center transition-colors focus:outline-none border border-zinc-700 ${
+            className={`relative inline-flex h-6 w-12 items-center border border-zinc-700 transition-colors focus:outline-none ${
               enabled ? 'bg-[#3B82F6]' : 'bg-zinc-900'
             }`}
           >
@@ -744,8 +743,8 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
         </div>
 
         {/* Save Bar */}
-        <div className="sticky bottom-4 z-20 flex items-center justify-between border border-zinc-800 bg-[#09090b]/95 p-4 backdrop-blur-xl shadow-2xl">
-          <span className="text-xs text-zinc-400 font-mono">
+        <div className="sticky bottom-4 z-20 flex items-center justify-between border border-zinc-800 bg-[#09090b]/95 p-4 shadow-2xl backdrop-blur-xl">
+          <span className="font-mono text-xs text-zinc-400">
             Ensure to save after changing code, timer, or event details.
           </span>
           <button
@@ -768,10 +767,11 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
       {/* New Event Modal */}
       {showNewEventModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="bleed-cross bg-[#09090b] max-w-md w-full space-y-4 p-6 shadow-2xl">
-
+          <div className="bleed-cross w-full max-w-md space-y-4 bg-[#09090b] p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">Create New Event</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
+                Create New Event
+              </h3>
               <button
                 type="button"
                 onClick={() => setShowNewEventModal(false)}
@@ -783,7 +783,9 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
 
             <form onSubmit={handleCreateNewEvent} className="space-y-3.5">
               <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-300 uppercase tracking-wider">Event Name</label>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-300">
+                  Event Name
+                </label>
                 <input
                   type="text"
                   required
@@ -805,16 +807,20 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-300 uppercase tracking-wider">URL Slug</label>
-                <div className="flex overflow-hidden border border-zinc-800 focus-within:border-zinc-500 focus-within:ring-1 focus-within:ring-zinc-500 bg-zinc-950/60">
-                  <span className="flex items-center bg-zinc-900/90 px-3 py-2 font-mono text-xs text-zinc-500 border-r border-zinc-800 select-none">
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-300">
+                  URL Slug
+                </label>
+                <div className="flex overflow-hidden border border-zinc-800 bg-zinc-950/60 focus-within:border-zinc-500 focus-within:ring-1 focus-within:ring-zinc-500">
+                  <span className="flex select-none items-center border-r border-zinc-800 bg-zinc-900/90 px-3 py-2 font-mono text-xs text-zinc-500">
                     {getAppBaseDomain()}/
                   </span>
                   <input
                     type="text"
                     required
                     value={newEvSlug}
-                    onChange={(e) => setNewEvSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                    onChange={(e) =>
+                      setNewEvSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))
+                    }
                     placeholder="space-apps"
                     className="w-full bg-transparent px-3 py-2 font-mono text-xs text-zinc-100 outline-none placeholder:text-zinc-600"
                   />
@@ -822,8 +828,10 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-zinc-300 uppercase tracking-wider">Certificate Code</label>
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="block text-xs font-medium uppercase tracking-wider text-zinc-300">
+                    Certificate Code
+                  </label>
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
@@ -835,7 +843,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
                         const rnd = Math.random().toString(36).substring(2, 6).toUpperCase();
                         setNewEvCode(`${prefix}26-${rnd}`);
                       }}
-                      className="text-[10px] text-[#3B82F6] hover:text-white uppercase tracking-wider font-semibold underline"
+                      className="text-[10px] font-semibold uppercase tracking-wider text-[#3B82F6] underline hover:text-white"
                     >
                       Auto-Code
                     </button>
@@ -844,7 +852,7 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
                       onClick={() => {
                         setNewEvCode(Math.floor(100000 + Math.random() * 900000).toString());
                       }}
-                      className="text-[10px] text-[#3B82F6] hover:text-white uppercase tracking-wider font-semibold underline"
+                      className="text-[10px] font-semibold uppercase tracking-wider text-[#3B82F6] underline hover:text-white"
                     >
                       PIN
                     </button>
@@ -861,7 +869,9 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-300 uppercase tracking-wider">Description (Optional)</label>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-zinc-300">
+                  Description (Optional)
+                </label>
                 <input
                   type="text"
                   value={newEvDesc}
@@ -894,5 +904,3 @@ export const EventSettings: React.FC<EventSettingsProps> = ({ event, onEventUpda
     </div>
   );
 };
-
-

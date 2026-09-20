@@ -29,14 +29,15 @@ export const ClaimsAudit: React.FC<ClaimsAuditProps> = ({ eventId }) => {
   }, [loadClaims]);
 
   return (
-    <div className="bleed-cross bg-[#09090b] space-y-4 p-6">
-
+    <div className="bleed-cross space-y-4 bg-[#09090b] p-6">
       <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-widest text-[#3B82F6]">
             Cryptographic Audit Log
           </div>
-          <h2 className="text-sm font-bold text-[#DFDFDE] uppercase tracking-wide">Certificate Claim Audit Trail</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-[#DFDFDE]">
+            Certificate Claim Audit Trail
+          </h2>
           <p className="text-xs text-zinc-400">
             Real-time audit log of verified certificate downloads (Asia/Colombo +05:30 & Local)
           </p>
@@ -47,7 +48,9 @@ export const ClaimsAudit: React.FC<ClaimsAuditProps> = ({ eventId }) => {
           onClick={loadClaims}
           className="btn-secondary-sharp inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
         >
-          <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin text-[#3B82F6]' : 'text-[#3B82F6]'}`} />
+          <RefreshCw
+            className={`h-3 w-3 ${loading ? 'animate-spin text-[#3B82F6]' : 'text-[#3B82F6]'}`}
+          />
           <span>Refresh</span>
         </button>
       </div>
@@ -68,7 +71,7 @@ export const ClaimsAudit: React.FC<ClaimsAuditProps> = ({ eventId }) => {
               <tr>
                 <td colSpan={5} className="py-8 text-center text-zinc-500">
                   <Loader2 className="mx-auto mb-1 h-4 w-4 animate-spin text-[#3B82F6]" />
-                  <span className="uppercase tracking-wider text-xs">Loading audit log...</span>
+                  <span className="text-xs uppercase tracking-wider">Loading audit log...</span>
                 </td>
               </tr>
             ) : claims.length === 0 ? (
@@ -98,7 +101,9 @@ export const ClaimsAudit: React.FC<ClaimsAuditProps> = ({ eventId }) => {
                         </div>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 font-mono text-zinc-400">{maskEmail(claim.email)}</td>
+                    <td className="px-3 py-2.5 font-mono text-zinc-400">
+                      {maskEmail(claim.email)}
+                    </td>
                     <td className="max-w-[120px] truncate px-3 py-2.5 font-mono text-[11px] text-zinc-500">
                       {claim.ip_hash ? `${claim.ip_hash.slice(0, 12)}...` : 'anonymized'}
                     </td>
@@ -117,4 +122,3 @@ export const ClaimsAudit: React.FC<ClaimsAuditProps> = ({ eventId }) => {
     </div>
   );
 };
-

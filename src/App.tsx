@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { CertificatePortal } from './components/CertificatePortal';
+import { SupportPage } from './components/SupportPage';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { AdminLogin } from './components/Admin/AdminLogin';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
@@ -54,6 +55,9 @@ export const App: React.FC = () => {
         {/* Main Content */}
         <main className="flex flex-1 flex-col justify-center">
           <Routes>
+            {/* Support Route */}
+            <Route path="/support" element={<SupportPage />} />
+
             {/* Public Certificate Portal Routes */}
             <Route path="/" element={<CertificatePortal />} />
             <Route path="/certificate" element={<CertificatePortal />} />

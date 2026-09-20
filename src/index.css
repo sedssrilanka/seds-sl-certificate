@@ -5,18 +5,25 @@
 @layer base {
   body {
     background-color: #09090b;
-    color: #DFDFDE;
-    font-family: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #dfdfde;
+    font-family:
+      'Barlow',
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* Remove default border radius and white outlines everywhere */
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     border-radius: 0px !important;
   }
 
-  *:focus, *:focus-visible {
+  *:focus,
+  *:focus-visible {
     outline: none !important;
     box-shadow: none !important;
   }
@@ -86,12 +93,12 @@
 }
 
 .bleed-btn-wrap-blue::before {
-  border-top-color: #3B82F6;
-  border-bottom-color: #3B82F6;
+  border-top-color: #3b82f6;
+  border-bottom-color: #3b82f6;
 }
 .bleed-btn-wrap-blue::after {
-  border-left-color: #3B82F6;
-  border-right-color: #3B82F6;
+  border-left-color: #3b82f6;
+  border-right-color: #3b82f6;
 }
 
 /* Backward compatibility mapping with enhanced sharp aesthetics */
@@ -134,22 +141,22 @@
 .apple-input {
   background: #09090b;
   border: 1px solid #27272a;
-  color: #DFDFDE;
+  color: #dfdfde;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .apple-input:focus {
   outline: none;
-  border-color: #3B82F6;
+  border-color: #3b82f6;
   background: #0d0d11;
   box-shadow: none !important;
 }
 
 /* Sharp Action Buttons - Flat & Non-Glowing */
 .btn-primary-sharp {
-  background-color: #3B82F6;
+  background-color: #3b82f6;
   color: #ffffff;
-  border: 1px solid #3B82F6;
+  border: 1px solid #3b82f6;
   font-family: 'Barlow', sans-serif;
   font-weight: 600;
   text-transform: uppercase;
@@ -159,19 +166,19 @@
 }
 
 .btn-primary-sharp:hover {
-  background-color: #2563EB;
-  border-color: #2563EB;
+  background-color: #2563eb;
+  border-color: #2563eb;
   box-shadow: none !important;
 }
 
 .btn-primary-sharp:active {
-  background-color: #1D4ED8;
+  background-color: #1d4ed8;
   transform: none;
 }
 
 .btn-secondary-sharp {
   background-color: #09090b;
-  color: #DFDFDE;
+  color: #dfdfde;
   border: 1px solid #27272a;
   font-family: 'Barlow', sans-serif;
   font-weight: 500;
@@ -201,6 +208,5 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3B82F6;
+  background: #3b82f6;
 }
-
