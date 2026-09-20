@@ -146,8 +146,14 @@ serve(async (req: Request) => {
       console.warn("Certificate file not found under candidate paths for:", normalizedEmail);
       return new Response(
         JSON.stringify({
-          success: false,
-          message: "Certificate verified, but certificate file was not found in storage. Please contact event organizers.",
+          success: true,
+          participant_name: verificationResult.participant_name,
+          registration_id: verificationResult.registration_id,
+          event_name: verificationResult.event_name,
+          download_url: "",
+          expires_in_seconds: 300,
+          already_claimed: verificationResult.already_claimed,
+          message: "Certificate verified! The certificate PDF file has not yet been uploaded to storage by the event organizers.",
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

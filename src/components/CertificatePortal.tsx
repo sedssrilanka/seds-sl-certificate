@@ -238,24 +238,30 @@ export const CertificatePortal: React.FC = () => {
 
             {/* Actions */}
             <div className="space-y-2.5 pt-2">
-              <button
-                type="button"
-                onClick={handleDirectDownload}
-                disabled={downloading}
-                className="btn-primary-sharp inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-semibold tracking-wider transition-all disabled:opacity-75"
-              >
-                {downloading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin text-white" />
-                    <span>Saving Certificate...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4" />
-                    <span>Download Certificate</span>
-                  </>
-                )}
-              </button>
+              {result.download_url ? (
+                <button
+                  type="button"
+                  onClick={handleDirectDownload}
+                  disabled={downloading}
+                  className="btn-primary-sharp inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-semibold tracking-wider transition-all disabled:opacity-75"
+                >
+                  {downloading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin text-white" />
+                      <span>Saving Certificate...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4" />
+                      <span>Download Certificate</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="border border-amber-600/30 bg-amber-950/20 p-3 text-center text-xs text-amber-200">
+                  Certificate PDF file is being prepared by the event organizers. Please check back shortly.
+                </div>
+              )}
 
               <button
                 type="button"
