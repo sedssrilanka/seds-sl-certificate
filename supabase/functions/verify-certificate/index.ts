@@ -123,14 +123,22 @@ serve(async (req: Request) => {
     // 4. Verification Succeeded! Generate short-lived signed URL (300 seconds / 5 min)
     let signedUrl = "";
     const sanitizedEmail = normalizedEmail.replace(/[@.]/g, '_');
+    const userPrefix = normalizedEmail.split('@')[0];
     const candidatePaths = [
       verificationResult.certificate_path,
       `Certificate - ${sanitizedEmail}.pdf`,
       `Certificate - ${sanitizedEmail}`,
+      `Certificate - ${normalizedEmail}.pdf`,
+      `Certificate - ${normalizedEmail}`,
       `events/${event_slug}/Certificate - ${sanitizedEmail}.pdf`,
+      `events/${event_slug}/Certificate - ${normalizedEmail}.pdf`,
+      `events/${event_slug}/${sanitizedEmail}.pdf`,
       `events/${event_slug}/${normalizedEmail}.pdf`,
+      `${sanitizedEmail}.pdf`,
+      `${normalizedEmail}.pdf`,
     ].filter(Boolean) as string[];
 
+    // 1. Direct path search
     for (const path of candidatePaths) {
       const { data: signedData, error: signError } = await supabaseAdmin.storage
         .from("certificates")
@@ -139,6 +147,62 @@ serve(async (req: Request) => {
       if (!signError && signedData?.signedUrl) {
         signedUrl = signedData.signedUrl;
         break;
+      }
+    }
+
+    // 2. Search root bucket if direct candidate paths missed
+    if (!signedUrl) {
+      try {
+        const { data: fileList } = await supabaseAdmin.storage.from("certificates").list();
+        if (fileList && fileList.length > 0) {
+          const matched = fileList.find((f) => {
+            const lower = f.name.toLowerCase();
+            return (
+              lower === `certificate - ${sanitizedEmail}.pdf`.toLowerCase() ||
+              lower.includes(sanitizedEmail) ||
+              lower.includes(userPrefix)
+            );
+          });
+          if (matched) {
+            const { data: sData } = await supabaseAdmin.storage
+              .from("certificates")
+              .createSignedUrl(matched.name, 300);
+            if (sData?.signedUrl) {
+              signedUrl = sData.signedUrl;
+            }
+          }
+        }
+      } catch (listErr) {
+        console.warn("Storage root list fallback error:", listErr);
+      }
+    }
+
+    // 3. Search events/{event_slug} subfolder
+    if (!signedUrl && event_slug) {
+      try {
+        const { data: subFileList } = await supabaseAdmin.storage
+          .from("certificates")
+          .list(`events/${event_slug}`);
+        if (subFileList && subFileList.length > 0) {
+          const matched = subFileList.find((f) => {
+            const lower = f.name.toLowerCase();
+            return (
+              lower === `certificate - ${sanitizedEmail}.pdf`.toLowerCase() ||
+              lower.includes(sanitizedEmail) ||
+              lower.includes(userPrefix)
+            );
+          });
+          if (matched) {
+            const { data: sData } = await supabaseAdmin.storage
+              .from("certificates")
+              .createSignedUrl(`events/${event_slug}/${matched.name}`, 300);
+            if (sData?.signedUrl) {
+              signedUrl = sData.signedUrl;
+            }
+          }
+        }
+      } catch (subListErr) {
+        console.warn("Storage subfolder list fallback error:", subListErr);
       }
     }
 

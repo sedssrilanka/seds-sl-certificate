@@ -232,10 +232,11 @@ export async function verifyCertificate(
         },
       });
 
-      if (error) {
-        return await verifyViaRpc(normalizedSlug, normalizedEmail, trimmedCode);
+      if (!error && data && data.success && data.download_url) {
+        return data as VerificationResponse;
       }
-      return data as VerificationResponse;
+      // Fallback to direct client RPC and deep storage resolution
+      return await verifyViaRpc(normalizedSlug, normalizedEmail, trimmedCode);
     } catch (edgeError) {
       console.warn('Edge function invoke fallback to RPC:', edgeError);
       return await verifyViaRpc(normalizedSlug, normalizedEmail, trimmedCode);
@@ -367,15 +368,23 @@ async function verifyViaRpc(
 
   let downloadUrl = '';
   const sanitized = normalizeEmail(email).replace(/[@.]/g, '_');
+  const userPrefix = normalizeEmail(email).split('@')[0];
   const candidatePaths = [
     data.certificate_path,
     `Certificate - ${sanitized}.pdf`,
     `Certificate - ${sanitized}`,
+    `Certificate - ${email}.pdf`,
+    `Certificate - ${email}`,
     `events/${eventSlug}/Certificate - ${sanitized}.pdf`,
+    `events/${eventSlug}/Certificate - ${email}.pdf`,
+    `events/${eventSlug}/${sanitized}.pdf`,
     `events/${eventSlug}/${email}.pdf`,
+    `${sanitized}.pdf`,
+    `${email}.pdf`,
   ].filter(Boolean) as string[];
 
   if (supabase) {
+    // 1. Try candidate paths directly
     for (const path of candidatePaths) {
       try {
         const { data: signedData, error: signError } = await supabase.storage
@@ -389,6 +398,62 @@ async function verifyViaRpc(
         // try next candidate path
       }
     }
+
+    // 2. If not found via direct path, search the root certificates bucket
+    if (!downloadUrl) {
+      try {
+        const { data: fileList } = await supabase.storage.from('certificates').list();
+        if (fileList && fileList.length > 0) {
+          const matched = fileList.find((f) => {
+            const lower = f.name.toLowerCase();
+            return (
+              lower === `certificate - ${sanitized}.pdf`.toLowerCase() ||
+              lower.includes(sanitized) ||
+              lower.includes(userPrefix)
+            );
+          });
+          if (matched) {
+            const { data: sData } = await supabase.storage
+              .from('certificates')
+              .createSignedUrl(matched.name, 300);
+            if (sData?.signedUrl) {
+              downloadUrl = sData.signedUrl;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Bucket list search fallback:', e);
+      }
+    }
+
+    // 3. Search events/{slug}/ folder if applicable
+    if (!downloadUrl && eventSlug) {
+      try {
+        const { data: subFileList } = await supabase.storage
+          .from('certificates')
+          .list(`events/${eventSlug}`);
+        if (subFileList && subFileList.length > 0) {
+          const matched = subFileList.find((f) => {
+            const lower = f.name.toLowerCase();
+            return (
+              lower === `certificate - ${sanitized}.pdf`.toLowerCase() ||
+              lower.includes(sanitized) ||
+              lower.includes(userPrefix)
+            );
+          });
+          if (matched) {
+            const { data: sData } = await supabase.storage
+              .from('certificates')
+              .createSignedUrl(`events/${eventSlug}/${matched.name}`, 300);
+            if (sData?.signedUrl) {
+              downloadUrl = sData.signedUrl;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Subfolder search fallback:', e);
+      }
+    }
   }
 
   return {
@@ -396,7 +461,7 @@ async function verifyViaRpc(
     participant_name: data.participant_name,
     registration_id: data.registration_id,
     event_name: data.event_name,
-    download_url: downloadUrl || '/sample-certificate.pdf',
+    download_url: downloadUrl || '',
     expires_in_seconds: 300,
     already_claimed: data.already_claimed,
     message: `Certificate verified for ${data.event_name}.`,
