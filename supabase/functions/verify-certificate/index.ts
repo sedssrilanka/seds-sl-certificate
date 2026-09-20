@@ -122,16 +122,28 @@ serve(async (req: Request) => {
 
     // 4. Verification Succeeded! Generate short-lived signed URL (300 seconds / 5 min)
     let signedUrl = "";
-    const certificatePath =
-      verificationResult.certificate_path ||
-      `events/${event_slug}/${normalizedEmail}.pdf`;
+    const sanitizedEmail = normalizedEmail.replace(/[@.]/g, '_');
+    const candidatePaths = [
+      verificationResult.certificate_path,
+      `Certificate - ${sanitizedEmail}.pdf`,
+      `Certificate - ${sanitizedEmail}`,
+      `events/${event_slug}/Certificate - ${sanitizedEmail}.pdf`,
+      `events/${event_slug}/${normalizedEmail}.pdf`,
+    ].filter(Boolean) as string[];
 
-    const { data: signedData, error: signError } = await supabaseAdmin.storage
-      .from("certificates")
-      .createSignedUrl(certificatePath, 300); // 5 minutes expiry
+    for (const path of candidatePaths) {
+      const { data: signedData, error: signError } = await supabaseAdmin.storage
+        .from("certificates")
+        .createSignedUrl(path, 300); // 5 minutes expiry
 
-    if (signError) {
-      console.error("Failed to generate signed URL:", signError);
+      if (!signError && signedData?.signedUrl) {
+        signedUrl = signedData.signedUrl;
+        break;
+      }
+    }
+
+    if (!signedUrl) {
+      console.warn("Certificate file not found under candidate paths for:", normalizedEmail);
       return new Response(
         JSON.stringify({
           success: false,
@@ -140,8 +152,6 @@ serve(async (req: Request) => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    signedUrl = signedData?.signedUrl || "";
 
     // 5. Return success payload
     return new Response(

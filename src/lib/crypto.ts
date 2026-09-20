@@ -24,6 +24,16 @@ export function normalizeEmail(email: string): string {
 }
 
 /**
+ * Generates standard certificate filename format from email by replacing '@' and '.' with '_':
+ * e.g., "achinthyachandeepanie@gmail.com" -> "Certificate - achinthyachandeepanie_gmail_com.pdf"
+ */
+export function getSanitizedEmailCertificatePath(email: string, _eventSlug?: string): string {
+  const norm = normalizeEmail(email);
+  const sanitized = norm.replace(/[@.]/g, '_');
+  return `Certificate - ${sanitized}.pdf`;
+}
+
+/**
  * Masks email address for secure UI display (e.g., j***n@example.com)
  * Complies with secure web skill PII masking guidelines.
  */

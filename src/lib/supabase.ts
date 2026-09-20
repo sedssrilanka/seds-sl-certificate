@@ -7,7 +7,7 @@ import {
   DashboardStats,
   CsvParticipantRow,
 } from '../types';
-import { sha256Hex, normalizeEmail } from './crypto';
+import { sha256Hex, normalizeEmail, getSanitizedEmailCertificatePath } from './crypto';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -366,12 +366,29 @@ async function verifyViaRpc(
   }
 
   let downloadUrl = '';
-  const certPath = data.certificate_path || `events/${eventSlug}/${email}.pdf`;
-  if (certPath) {
-    const { data: signedData } = await supabase.storage
-      .from('certificates')
-      .createSignedUrl(certPath, 300);
-    downloadUrl = signedData?.signedUrl || '';
+  const sanitized = normalizeEmail(email).replace(/[@.]/g, '_');
+  const candidatePaths = [
+    data.certificate_path,
+    `Certificate - ${sanitized}.pdf`,
+    `Certificate - ${sanitized}`,
+    `events/${eventSlug}/Certificate - ${sanitized}.pdf`,
+    `events/${eventSlug}/${email}.pdf`,
+  ].filter(Boolean) as string[];
+
+  if (supabase) {
+    for (const path of candidatePaths) {
+      try {
+        const { data: signedData, error: signError } = await supabase.storage
+          .from('certificates')
+          .createSignedUrl(path, 300);
+        if (!signError && signedData?.signedUrl) {
+          downloadUrl = signedData.signedUrl;
+          break;
+        }
+      } catch {
+        // try next candidate path
+      }
+    }
   }
 
   return {
@@ -598,7 +615,7 @@ export async function addParticipant(
     `SEDS-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
   const autoCertPath =
-    participant.certificate_path?.trim() || `events/${eventSlug}/${normEmail}.pdf`;
+    participant.certificate_path?.trim() || getSanitizedEmailCertificatePath(normEmail, eventSlug);
 
   const newRecord: Participant = {
     id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -672,6 +689,8 @@ export async function importParticipantsCSV(
   }
 
   if (supabase && isSupabaseConfigured) {
+    const validRowsToUpsert = [];
+
     for (const row of rows) {
       if (!row.email || !row.name) {
         failed++;
@@ -689,26 +708,35 @@ export async function importParticipantsCSV(
         row.registration_id?.trim() ||
         `SEDS-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
-      const certPath = row.certificate_path?.trim() || `events/${eventSlug}/${normEmail}.pdf`;
+      const certPath =
+        row.certificate_path?.trim() || getSanitizedEmailCertificatePath(normEmail, eventSlug);
 
-      const { error } = await supabase.from('participants').upsert(
-        {
-          event_id: eventId,
-          name: row.name.trim(),
-          email: normEmail,
-          registration_id: regId,
-          eligible: eligibleBool,
-          certificate_path: certPath,
-        },
-        { onConflict: 'event_id,email' }
-      );
+      validRowsToUpsert.push({
+        event_id: eventId,
+        name: row.name.trim(),
+        email: normEmail,
+        registration_id: regId,
+        eligible: eligibleBool,
+        certificate_path: certPath,
+      });
+    }
+
+    // Process in batches of 100 for high performance
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < validRowsToUpsert.length; i += BATCH_SIZE) {
+      const batch = validRowsToUpsert.slice(i, i + BATCH_SIZE);
+      const { error } = await supabase.from('participants').upsert(batch, {
+        onConflict: 'event_id,email',
+      });
 
       if (error) {
-        failed++;
+        console.error('Batch import error:', error);
+        failed += batch.length;
       } else {
-        inserted++;
+        inserted += batch.length;
       }
     }
+
     return { inserted, updated, failed };
   }
 
@@ -732,7 +760,8 @@ export async function importParticipantsCSV(
       (p) => p.event_id === eventId && normalizeEmail(p.email) === normEmail
     );
 
-    const certPath = row.certificate_path?.trim() || `events/${eventSlug}/${normEmail}.pdf`;
+    const certPath =
+      row.certificate_path?.trim() || getSanitizedEmailCertificatePath(normEmail, eventSlug);
 
     if (existingIndex >= 0) {
       participants[existingIndex] = {
