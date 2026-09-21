@@ -633,6 +633,55 @@ export async function getParticipants(
   return list;
 }
 
+export async function getParticipantCounts(eventId: string): Promise<{
+  all: number;
+  eligible: number;
+  ineligible: number;
+  claimed: number;
+  unclaimed: number;
+}> {
+  if (supabase && isSupabaseConfigured) {
+    const { data, error } = await supabase
+      .from('participants')
+      .select('eligible, certificate_claimed')
+      .eq('event_id', eventId);
+
+    if (error || !data) {
+      return { all: 0, eligible: 0, ineligible: 0, claimed: 0, unclaimed: 0 };
+    }
+
+    const all = data.length;
+    let eligible = 0;
+    let claimed = 0;
+
+    for (const p of data) {
+      if (p.eligible) eligible++;
+      if (p.certificate_claimed) claimed++;
+    }
+
+    return {
+      all,
+      eligible,
+      ineligible: all - eligible,
+      claimed,
+      unclaimed: all - claimed,
+    };
+  }
+
+  const list = getStoredMockParticipants().filter((p) => p.event_id === eventId);
+  const all = list.length;
+  const eligible = list.filter((p) => p.eligible).length;
+  const claimed = list.filter((p) => p.certificate_claimed).length;
+
+  return {
+    all,
+    eligible,
+    ineligible: all - eligible,
+    claimed,
+    unclaimed: all - claimed,
+  };
+}
+
 export async function toggleParticipantEligibility(
   id: string,
   eligible: boolean

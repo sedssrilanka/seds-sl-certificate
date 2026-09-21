@@ -55,15 +55,15 @@ export const ClaimsAudit: React.FC<ClaimsAuditProps> = ({ eventId }) => {
         </button>
       </div>
 
-      <div className="overflow-x-auto border border-zinc-800 bg-zinc-950/60">
+      <div className="max-h-[580px] overflow-y-auto overflow-x-auto border border-zinc-800 bg-zinc-950/60">
         <table className="w-full text-left text-xs text-zinc-300">
-          <thead className="border-b border-zinc-800 bg-zinc-900/90 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+          <thead className="sticky top-0 z-10 border-b border-zinc-800 bg-[#121215] text-[10px] font-semibold uppercase tracking-wider text-zinc-400 shadow-sm">
             <tr>
-              <th className="px-3 py-2.5">Timestamp</th>
-              <th className="px-3 py-2.5">Participant</th>
-              <th className="px-3 py-2.5">Masked Email</th>
-              <th className="px-3 py-2.5 font-mono">IP Hash</th>
-              <th className="px-3 py-2.5 text-right">Status</th>
+              <th className="bg-[#121215] px-3 py-2.5">Timestamp</th>
+              <th className="bg-[#121215] px-3 py-2.5">Participant</th>
+              <th className="bg-[#121215] px-3 py-2.5">Masked Email</th>
+              <th className="bg-[#121215] px-3 py-2.5 font-mono">IP Hash</th>
+              <th className="bg-[#121215] px-3 py-2.5 text-right">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">

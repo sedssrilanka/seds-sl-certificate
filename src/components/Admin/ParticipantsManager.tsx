@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { Participant, CsvParticipantRow } from '../../types';
 import {
   getParticipants,
+  getParticipantCounts,
   toggleParticipantEligibility,
   deleteParticipant,
   addParticipant,
@@ -38,6 +39,19 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
   const [filter, setFilter] = useState<'all' | 'eligible' | 'ineligible' | 'claimed' | 'unclaimed'>(
     'all'
   );
+  const [counts, setCounts] = useState<{
+    all: number;
+    eligible: number;
+    ineligible: number;
+    claimed: number;
+    unclaimed: number;
+  }>({
+    all: 0,
+    eligible: 0,
+    ineligible: 0,
+    claimed: 0,
+    unclaimed: 0,
+  });
 
   // CSV Import State
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,8 +81,12 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
   const loadData = React.useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getParticipants(eventId, search, filter);
+      const [data, countData] = await Promise.all([
+        getParticipants(eventId, search, filter),
+        getParticipantCounts(eventId),
+      ]);
       setParticipants(data);
+      setCounts(countData);
     } catch (err) {
       console.error('Error loading participants:', err);
     } finally {
@@ -260,21 +278,31 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-1 overflow-x-auto border-t border-zinc-800 pt-2 text-xs">
-          {(['all', 'eligible', 'ineligible', 'claimed', 'unclaimed'] as const).map((key) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setFilter(key)}
-              className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${
-                filter === key
-                  ? 'bg-[#3B82F6] text-white'
-                  : 'border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              {key}
-            </button>
-          ))}
+        <div className="flex items-center gap-1.5 overflow-x-auto border-t border-zinc-800 pt-2 text-xs">
+          {(['all', 'eligible', 'ineligible', 'claimed', 'unclaimed'] as const).map((key) => {
+            const count = counts[key] ?? 0;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setFilter(key)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold uppercase tracking-wider transition-all ${
+                  filter === key
+                    ? 'bg-[#3B82F6] text-white shadow-sm'
+                    : 'border border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+                }`}
+              >
+                <span>{key}</span>
+                <span
+                  className={`px-1.5 py-0.5 text-[10px] font-mono leading-none ${
+                    filter === key ? 'bg-white/20 text-white' : 'bg-zinc-800 text-zinc-400'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
 
           <button
             type="button"
@@ -398,16 +426,16 @@ export const ParticipantsManager: React.FC<ParticipantsManagerProps> = ({
       )}
 
       {/* Table */}
-      <div className="bleed-cross overflow-hidden bg-[#09090b]">
-        <div className="overflow-x-auto">
+      <div className="bleed-cross overflow-hidden border border-zinc-800 bg-[#09090b]">
+        <div className="max-h-[580px] overflow-y-auto overflow-x-auto">
           <table className="w-full text-left text-xs text-zinc-300 sm:text-sm">
-            <thead className="border-b border-zinc-800 bg-zinc-900/90 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+            <thead className="sticky top-0 z-10 border-b border-zinc-800 bg-[#121215] text-[11px] font-semibold uppercase tracking-wider text-zinc-400 shadow-sm">
               <tr>
-                <th className="px-4 py-3">Participant</th>
-                <th className="px-4 py-3">Registration ID</th>
-                <th className="px-4 py-3 text-center">Eligibility</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="bg-[#121215] px-4 py-3">Participant</th>
+                <th className="bg-[#121215] px-4 py-3">Registration ID</th>
+                <th className="bg-[#121215] px-4 py-3 text-center">Eligibility</th>
+                <th className="bg-[#121215] px-4 py-3">Status</th>
+                <th className="bg-[#121215] px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/60">
